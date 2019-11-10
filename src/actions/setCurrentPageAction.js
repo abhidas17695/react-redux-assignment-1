@@ -7,9 +7,10 @@ export default function setCurrentPage(pageId) {
             dispatch({ type: 'NOT_FETCHING' });
             return Promise.resolve();
         } else {
-            dispatch({ type: 'IS_FETCHING', payload: 'https://swapi.co/api/' + getState().reducer.attribute + '/?page=' + pageId + '&search=' + getState().reducer.keyword })
-            return axios.get('https://swapi.co/api/' + getState().reducer.attribute + '/?page=' + pageId + '&search=' + getState().reducer.keyword).then(res => {
-                dispatch({ type: 'SET_PAGE', payload: res.data, pageId: pageId, url: 'https://swapi.co/api/' + getState().reducer.attribute + '/?page=' + pageId + '&search=' + getState().reducer.keyword });
+            let url = 'https://swapi.co/api/' + getState().reducer.attribute + '/?page=' + pageId + '&search=' + getState().reducer.keyword;
+            dispatch({ type: 'IS_FETCHING', payload: url })
+            return axios.get(url).then(res => {
+                dispatch({ type: 'SET_PAGE', payload: res.data, pageId: pageId, url: url });
                 dispatch({ type: 'NOT_FETCHING' });
             }).catch(err => dispatch({ type: 'NOT_FETCHING' }));
         }

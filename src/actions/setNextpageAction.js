@@ -5,9 +5,10 @@ export default function setNextPage() {
         if (getState().reducer.result[pageId + 1]) {
             return Promise.resolve();
         } else {
-            dispatch({ type: 'SET_NEXT_URL', payload: getState().reducer.result[pageId].next });
-            return axios.get(getState().reducer.result[pageId].next).then(res => {
-                dispatch({ type: 'SET_NEXT_PAGE', payload: res.data, nextPage: pageId + 1, url: getState().reducer.result[pageId].next });
+            let url = getState().reducer.result[pageId].next;
+            dispatch({ type: 'SET_NEXT_URL', payload: url });
+            return axios.get(url).then(res => {
+                dispatch({ type: 'SET_NEXT_PAGE', payload: res.data, nextPage: pageId + 1, url: url });
             });
         }
     }
