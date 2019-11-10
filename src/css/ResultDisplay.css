@@ -1,0 +1,14 @@
+.resultDisplay {
+    background-color: #282727;
+    width: 30%;
+    margin: auto;
+    margin-top: 10px;
+    font-family: DIN, Helvetica, Arial, sans-serif;
+    padding: 45px;
+}
+
+@media only screen and (max-width: 768px) {
+    .resultDisplay{
+        width: 90%;
+    }
+ }

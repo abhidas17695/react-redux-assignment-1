@@ -1,0 +1,12 @@
+.resultName {
+    color: white;
+    font-size: large;
+  }
+
+  .resultDetail {
+    color: white;
+  }
+
+  .resultValue {
+    color: #ebd800;
+  }
