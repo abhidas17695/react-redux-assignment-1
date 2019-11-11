@@ -10,12 +10,14 @@ const middlewares = [thunk];
 const mockStore = configureStore(middlewares);
 
 const mock = new MockAdapter(axios);
+var CancelToken = axios.CancelToken;
 
 const store = mockStore({
     reducer: {
         keyword: "r",
         attribute: "people",
         currentPage: 1,
+        nextRequest: null,
         result: {
             1: {
                 next: "https://swapi.co/api/people/?page=2&search=r"
@@ -29,7 +31,10 @@ describe('setNextpageAction', () => {
         store.clearActions();
     });
     it('returns data next page when page data is not present in store', () => {
-        mock.onGet('https://swapi.co/api/people/?page=2&search=r').reply(200, {
+        let source = CancelToken.source();
+        mock.onGet('https://swapi.co/api/people/?page=2&search=r', {
+            cancelToken: source.token
+        }).reply(200, {
             data: [
                 {
                     "count": 1,
@@ -43,6 +48,9 @@ describe('setNextpageAction', () => {
         });
         store.dispatch(setNextPage()).then(() => {
             let expectedActions = [{
+                type: 'SET_NEXT_REQUEST',
+                payload: source.token
+            }, {
                 type: 'SET_NEXT_PAGE',
                 nextPage: 2,
                 payload: {
@@ -68,6 +76,7 @@ describe('setNextpageAction', () => {
                 keyword: "r",
                 attribute: "people",
                 currentPage: 1,
+                nextRequest: null,
                 result: {
                     1: {
                         next: "https://swapi.co/api/people/?page=2&search=r"

@@ -10,11 +10,14 @@ const middlewares = [thunk];
 const mockStore = configureStore(middlewares);
 
 const mock = new MockAdapter(axios);
+var CancelToken = axios.CancelToken;
 
 const store = mockStore({
     reducer: {
         keyword: "r",
         attribute: "people",
+        currentRequest: null,
+        nextRequest: null,
         result: {}
     }
 });
@@ -24,7 +27,10 @@ describe('setKeywordAction', () => {
         store.clearActions();
     });
     it('returns data of a keyword and attribute', () => {
-        mock.onGet('https://swapi.co/api/people/?page=1&search=r').reply(200, {
+        let source = CancelToken.source();
+        mock.onGet('https://swapi.co/api/people/?page=1&search=r', {
+            cancelToken: source.token
+        }).reply(200, {
             data: [
                 {
                     "count": 1,
@@ -38,6 +44,9 @@ describe('setKeywordAction', () => {
         });
         store.dispatch(setKeywordAction("r", "people")).then(() => {
             let expectedActions = [{ type: 'IS_FETCHING' }, {
+                type: 'SET_REQUEST',
+                payload: source.token
+            }, {
                 type: 'SET_KEYWORD',
                 payload: {
                     data: [

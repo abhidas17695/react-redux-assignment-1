@@ -10,11 +10,13 @@ const middlewares = [thunk];
 const mockStore = configureStore(middlewares);
 
 const mock = new MockAdapter(axios);
+var CancelToken = axios.CancelToken;
 
 const store = mockStore({
     reducer: {
         keyword: "r",
         attribute: "people",
+        currentRequest: null,
         result: {}
     }
 });
@@ -24,7 +26,10 @@ describe('setCurrentPageAction', () => {
         store.clearActions();
     });
     it('returns data of a page when page data is not present in store', () => {
-        mock.onGet('https://swapi.co/api/people/?page=1&search=r').reply(200, {
+        let source = CancelToken.source();
+        mock.onGet('https://swapi.co/api/people/?page=1&search=r', {
+            cancelToken: source.token
+        }).reply(200, {
             data: [
                 {
                     "count": 1,
@@ -38,6 +43,9 @@ describe('setCurrentPageAction', () => {
         });
         store.dispatch(setCurrentPage(1)).then(() => {
             let expectedActions = [{ type: 'IS_FETCHING' }, {
+                type: 'SET_REQUEST',
+                payload: cancel.token
+            }, {
                 type: 'SET_PAGE',
                 payload: {
                     data: [
@@ -50,7 +58,8 @@ describe('setCurrentPageAction', () => {
                                 }
                             ]
                         }]
-                }
+                },
+                pageId: 1
             }, {
                 type: 'NOT_FETCHING'
             }]
@@ -63,6 +72,7 @@ describe('setCurrentPageAction', () => {
             reducer: {
                 keyword: "r",
                 attribute: "people",
+                currentRequest: null,
                 result: {
                     1: {
                         "count": 1,
@@ -88,7 +98,8 @@ describe('setCurrentPageAction', () => {
                             name: "Sand Crawler"
                         }
                     ]
-                }
+                },
+                pageId: 1
             }, {
                 type: 'NOT_FETCHING'
             }]
