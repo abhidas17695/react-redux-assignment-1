@@ -1,23 +1,25 @@
 import axios from 'axios';
 const CancelToken = axios.CancelToken;
 
-export default function setNextPage() {
+export default function getAll(attribute) {
     return function (dispatch, getState) {
-        let url = getState().reducer.next;
-        if(url==null) return Promise.resolve();
+        let url = 'https://swapi.co/api/' + attribute + '/?page=1';
         dispatch({ type: 'IS_FETCHING' });
         getState().reducer.currentRequest && getState().reducer.currentRequest();
+        dispatch({ type: 'CLEAR_RESULTS' });
+        dispatch({ type: 'SET_KEYWORD', payload: "" });
+        dispatch({ type: 'SET_ATTRIBUTE', payload: attribute });
         return axios.get(url, {
             cancelToken: new CancelToken(function (c) {
-                dispatch({ type: 'SET_REQUEST', payload: c });
+            dispatch({ type: 'SET_REQUEST', payload: c });
             })
         }).then(res => {
             dispatch({ type: 'SET_RESULTS', payload: res.data });
-            dispatch({ type: 'NOT_FETCHING' });
+                dispatch({ type: 'NOT_FETCHING' });
         }).catch(err => {
             if (!axios.isCancel(err)) {
                 dispatch({ type: 'NOT_FETCHING' });
-                dispatch({type:'RETRY_NEXT_PAGE'});
+                dispatch({type:'RETRY_GET_ALL'});
             }
         });
     }

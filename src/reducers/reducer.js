@@ -1,32 +1,21 @@
 let defaultState = {
     keyword: "",
-    attribute: "",
-    result: {},
-    currentPage: 0,
+    attribute: "people",
+    result: [],
     count: 0,
+    next: "",
     isFetching: false,
     currentResultDisplay: null,
-    nextRequest: null,
-    currentRequest: null
+    currentRequest: null,
+    retryType: ""
 };
 
 export default function reducer(state = defaultState, action) {
     switch (action.type) {
         case 'SET_KEYWORD':
-            var newState = Object.assign({}, state, { count: action.payload.count, keyword: action.keyword, currentPage: 1, attribute: action.attribute });
-            newState.result = {};
-            newState.result['1'] = action.payload;
-            return newState;
-        case 'SET_PAGE':
-            newState = Object.assign({}, state, { currentPage: action.pageId });
-            newState.result[action.pageId] = action.payload;
-            return newState;
-        case 'SET_NEXT_PAGE':
-            newState = Object.assign({}, state);
-            newState.result[action.nextPage] = action.payload;
-            return newState;
-        case 'SET_NEXT_REQUEST':
-            return Object.assign({}, state, { nextRequest: action.payload });
+            return Object.assign({}, state, { keyword: action.payload });
+        case 'SET_ATTRIBUTE':
+            return Object.assign({}, state, { attribute: action.payload });
         case 'IS_FETCHING':
             return Object.assign({}, state, { isFetching: true });
         case 'NOT_FETCHING':
@@ -37,6 +26,21 @@ export default function reducer(state = defaultState, action) {
             return Object.assign({}, state, { currentResultDisplay: null });
         case 'SET_REQUEST':
             return Object.assign({}, state, { currentRequest: action.payload });
+        case 'SET_RESULTS':
+            let newArray = state.result.map(r => r);
+            newArray.push(...action.payload.results);
+            let newState = Object.assign({}, state);
+            newState.result = newArray;
+            newState.next = action.payload.next;
+            newState.count = action.payload.count;
+            newState.retryType="";
+            return newState;
+        case 'CLEAR_RESULTS':
+            return Object.assign({}, state, { result: [] });
+        case 'RETRY_NEXT_PAGE':
+        case 'RETRY_KEYWORD':
+        case 'RETRY_GET_ALL':
+            return Object.assign({}, state, { retryType: action.type });
     }
     return state;
 }

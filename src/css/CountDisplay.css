@@ -1,0 +1,14 @@
+.count-display {
+    width: 30%;
+    margin: auto;
+    margin-top: 5px;
+    font-family: DIN, Helvetica, Arial, sans-serif;
+    padding: 5px;
+    color: white;
+}
+
+@media only screen and (max-width: 768px) {
+    .count-display{
+        width: 90%;
+    }
+ }

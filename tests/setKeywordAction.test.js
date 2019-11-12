@@ -10,15 +10,19 @@ const middlewares = [thunk];
 const mockStore = configureStore(middlewares);
 
 const mock = new MockAdapter(axios);
-var CancelToken = axios.CancelToken;
+const CancelToken = axios.CancelToken;
 
 const store = mockStore({
-    reducer: {
-        keyword: "r",
+    reducer:{
+        keyword: "",
         attribute: "people",
+        result: [],
+        count: 0,
+        next: "",
+        isFetching: false,
+        currentResultDisplay: null,
         currentRequest: null,
-        nextRequest: null,
-        result: {}
+        retryType: ""
     }
 });
 
@@ -43,11 +47,19 @@ describe('setKeywordAction', () => {
                 }]
         });
         store.dispatch(setKeywordAction("r", "people")).then(() => {
-            let expectedActions = [{ type: 'IS_FETCHING' }, {
+            let expectedActions = [{ type: 'IS_FETCHING' },{
+                type:'CLEAR_RESULTS'
+            }, {
+                type:'SET_KEYWORD',
+                payload: "r"
+            },{
+                type:'SET_ATTRIBUTE',
+                payload:'people'
+            },{
                 type: 'SET_REQUEST',
                 payload: source.token
             }, {
-                type: 'SET_KEYWORD',
+                type: 'SET_RESULTS',
                 payload: {
                     data: [
                         {
@@ -60,8 +72,6 @@ describe('setKeywordAction', () => {
                             ]
                         }]
                 },
-                keyword: "r",
-                attribute: "people"
             }, {
                 type: 'NOT_FETCHING'
             }]
@@ -69,16 +79,27 @@ describe('setKeywordAction', () => {
         }).catch(e => { });
     });
 
-    it('returns nothing when keyword and attribute are already present in reducer', () => {
-        store.dispatch(setKeywordAction("r", "people")).then(() => {
-            expect(store.getActions()).toEqual(expectedActions);
-        }).catch(e => { })
-    });
 
     it('returns NOT_FETCHING when network error occurs', () => {
-        mock.onGet('https://swapi.co/api/people/?page=1&search=r').networkError();
+        let source = CancelToken.source();
+        mock.onGet('https://swapi.co/api/people/?page=1&search=r',{
+            cancelToken: source.token
+        }).networkError();
         store.dispatch(setKeywordAction("r", "people")).then(() => {
-            let expectedActions = [{ type: 'IS_FETCHING' }, { type: 'NOT_FETCHING' }];
+            let expectedActions = [{ type: 'IS_FETCHING' },{
+                type:'CLEAR_RESULTS'
+            },{
+                type:'SET_KEYWORD',
+                payload:'r'
+            },{
+                type:'SET_ATTRIBUTE',
+                payload:'people'
+            },{
+                type:'SET_REQUEST',
+                payload:source.token
+            }, { type: 'NOT_FETCHING' },{
+                type:'RETRY_KEYWORD'
+            }];
             expect(store.getActions()).toEqual(expectedActions);
         }).catch(e => { });
     });

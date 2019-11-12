@@ -43,24 +43,26 @@ export class Results extends Component {
         this.props.closeModal();
     }
     render() {
-        let results = typeof this.props.result[this.props.currentPage] == "undefined" ? [] : this.props.result[this.props.currentPage].results;
+        let results = this.props.result;
         return (
             <div>
-                {results.map((result, index) => {
+                {results.map((item, index) => {
                     if (index == results.length - 1) {
                         return (
-                            <TrackVisibility key={result.url} partialVisibility>
-                                <ResultDisplay key={result.url} >
-                                    {this.displayDetail(result)}
+                            <TrackVisibility partialVisibility once>
+                                <ResultDisplay key={item.url}>
+                                    {this.displayDetail(item)}
                                 </ResultDisplay>
                             </TrackVisibility>
                         )
                     }
-                    return <ResultDisplay key={result.url} >
-                        {this.displayDetail(result)}
-                    </ResultDisplay>
+                    return (
+                        <ResultDisplay>
+                            {this.displayDetail(item)}
+                        </ResultDisplay>
+                    )
                 })}
-                <Modal currentResultDisplay={this.props.currentResultDisplay} handleParentCloseModal={this.handleModalClose}>
+                <Modal handleParentCloseModal={this.handleModalClose} currentResultDisplay={this.props.currentResultDisplay}>
                     {this.displayModal()}
                 </Modal>
             </div>

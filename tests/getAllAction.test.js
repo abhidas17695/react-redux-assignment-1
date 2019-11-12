@@ -1,4 +1,4 @@
-import setNextPage from '../src/actions/setNextpageAction';
+import getAll from '../src/actions/getAllAction';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import MockAdapter from 'axios-mock-adapter';
@@ -26,13 +26,13 @@ const store = mockStore({
     }
 });
 
-describe('setNextpageAction', () => {
+describe('getAllAction', () => {
     beforeEach(() => {
         store.clearActions();
     });
-    it('returns data next page when page data is not present in store', () => {
+    it('returns all data of an attribute', () => {
         let source = CancelToken.source();
-        mock.onGet('https://swapi.co/api/people/?page=2&search=r', {
+        mock.onGet('https://swapi.co/api/people/?page=1', {
             cancelToken: source.token
         }).reply(200, {
             data: [
@@ -46,10 +46,13 @@ describe('setNextpageAction', () => {
                     ]
                 }]
         });
-        store.dispatch(setNextPage()).then(() => {
-            let expectedActions = [{
-                type:'IS_FETCHING'
+        store.dispatch(getAll( "people")).then(() => {
+            let expectedActions = [{ type: 'IS_FETCHING' },{
+                type:'CLEAR_RESULTS'
             },{
+                type:'SET_ATTRIBUTE',
+                payload: "people"
+            }, {
                 type: 'SET_REQUEST',
                 payload: source.token
             }, {
@@ -65,29 +68,32 @@ describe('setNextpageAction', () => {
                                 }
                             ]
                         }]
-                }
-            },{
-                type:'NOT_FETCHING'
-            }];
+                },
+            }, {
+                type: 'NOT_FETCHING'
+            }]
             expect(store.getActions()).toEqual(expectedActions);
         }).catch(e => { });
     });
 
     it('returns NOT_FETCHING when network error occurs', () => {
         let source = CancelToken.source();
-        mock.onGet('https://swapi.co/api/people/?page=2&search=r',{
+        mock.onGet('https://swapi.co/api/people/?page=1&search=r',{
             cancelToken: source.token
         }).networkError();
-        store.dispatch(setNextPage()).then(() => {
+        store.dispatch(getAll( "people")).then(() => {
             let expectedActions = [{ type: 'IS_FETCHING' },{
+                type:'CLEAR_RESULTS'
+            },{
+                type:'SET_ATTRIBUTE',
+                payload:'people'
+            },{
                 type:'SET_REQUEST',
-                payload: source.token
-            }, { type: 'NOT_FETCHING' },{type:'RETRY_NEXT_PAGE'}];
-            let x = store.getActions();
+                payload:source.token
+            }, { type: 'NOT_FETCHING' },{
+                type:'RETRY_GET_ALL'
+            }];
             expect(store.getActions()).toEqual(expectedActions);
         }).catch(e => { });
     });
 });
-
-
-

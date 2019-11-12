@@ -15,18 +15,18 @@ describe('Results ', () => {
     let store = mockStore({
         reducer: {
             keyword: "",
-            attribute: "",
-            result: {},
-            currentPage: 0,
+            attribute: "people",
+            result: [],
             count: 0,
+            next: "",
             isFetching: false,
-            currentUrlsFetching: [],
-            currentResultDisplay: null
+            currentResultDisplay: null,
+            currentRequest: null
         }
     });
 
     it('renders a div', () => {
-        results = shallow(<Results result={{}} />);
+        results = shallow(<Results result={[]} />);
         expect(results.find('div').length).toBe(1);
     });
 
@@ -43,7 +43,7 @@ describe('Results ', () => {
 
     it('calls displayModal when expand button is clicked and currentResultDisplay is null', () => {
         const displayModalSpy = jest.fn();
-        results = shallow(<Results displayModal={displayModalSpy} result={{}} />);
+        results = shallow(<Results displayModal={displayModalSpy} result={[]} />);
         results.instance().handleDisplayModal({});
         expect(displayModalSpy).toHaveBeenCalledTimes(1);
     });
@@ -51,14 +51,14 @@ describe('Results ', () => {
     it('does not call displayModal when expand button is clicked and currentResultDisplay is not null', () => {
 
         const displayModalSpy = jest.fn();
-        results = shallow(<Results displayModal={displayModalSpy} currentResultDisplay={{}} result={{}} />);
+        results = shallow(<Results displayModal={displayModalSpy} currentResultDisplay={{}} result={[]} />);
         results.instance().handleDisplayModal({});
         expect(displayModalSpy).toHaveBeenCalledTimes(0);
     });
 
     it('calls closeModal when close button is clicked on modal', () => {
         const closeModalSpy = jest.fn();
-        results = shallow(<Results closeModal={closeModalSpy} result={{}} />);
+        results = shallow(<Results closeModal={closeModalSpy} result={[]} />);
         results.instance().handleModalClose({});
         expect(closeModalSpy).toHaveBeenCalledTimes(1);
     });
@@ -68,9 +68,7 @@ describe('Results ', () => {
             reducer: {
                 keyword: "",
                 attribute: "people",
-                result: {
-                    1: {
-                        results: [{
+                result: [{
                             name: "",
                             height: "",
                             gender: ""
@@ -82,13 +80,9 @@ describe('Results ', () => {
                             name: "",
                             height: "",
                             gender: ""
-                        }]
-                    }
-                },
-                currentPage: 1,
+                        }],
                 count: 3,
                 isFetching: false,
-                currentUrlsFetching: [],
                 currentResultDisplay: {
                     name: "",
                     hair_color: "",
@@ -129,9 +123,7 @@ describe('Results ', () => {
             reducer: {
                 keyword: "",
                 attribute: "vehicles",
-                result: {
-                    1: {
-                        results: [{
+                result: [{
                             name: "",
                             model: "",
                             manufacturer: ""
@@ -143,13 +135,9 @@ describe('Results ', () => {
                             name: "",
                             model: "",
                             manufacturer: ""
-                        }]
-                    }
-                },
-                currentPage: 1,
+                        }],
                 count: 3,
                 isFetching: false,
-                currentUrlsFetching: [],
                 currentResultDisplay: {
                     name: "",
                     max_atmosphering_speed: "",
